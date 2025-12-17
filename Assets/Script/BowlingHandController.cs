@@ -7,10 +7,13 @@ public class BowlingHandController : MonoBehaviour
     public Transform cameraTransform; // Tarik 'Main Camera' ke sini
 
     [Header("Settings Lemparan")]
-    // Karena pakai ForceMode.Impulse, angkanya kecil saja (10-20) sudah sangat kuat
-    public float throwForce = 15f;    
+    // Karena pakai ForceMode.Impulse, angkanya kecil saja (10-60) sudah sangat kuat
+    public float throwForce = 60f;    
     public float pickupRange = 5f;    // Jarak pandang untuk ambil bola
     public float spinAmount = 10f;    // Putaran bola agar menggelinding cantik
+    
+    [Header("Koneksi Game Manager")]
+    public BowlingGameManager gameManager; // TARIK OBJEK 'GameManager' KE SINI DI INSPECTOR
 
     private Rigidbody rb;
     private bool isHolding = false;   // Status sedang pegang bola atau tidak
@@ -108,5 +111,16 @@ public class BowlingHandController : MonoBehaviour
 
         // 4. Tambahkan gaya putar (Torque) agar bola menggelinding visualnya
         rb.AddTorque(transform.right * spinAmount, ForceMode.Impulse);
+
+        // --- TAMBAHAN KONEKSI MANAGER ---
+        // Memberi tahu GameManager untuk mulai menghitung skor (tunggu bola nabrak pin)
+        if (gameManager != null)
+        {
+            gameManager.StartTurn();
+        }
+        else
+        {
+            Debug.LogWarning("Game Manager belum dimasukkan ke slot script BowlingHandController!");
+        }
     }
 }

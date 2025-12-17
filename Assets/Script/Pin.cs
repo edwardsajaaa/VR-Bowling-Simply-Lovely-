@@ -7,35 +7,53 @@ public class Pin : MonoBehaviour
 
     void Start()
     {
-        // Simpan posisi awal buat reset nanti
         startPosition = transform.position;
         startRotation = transform.rotation;
     }
 
-    // Fungsi untuk mengecek apakah pin jatuh
     public bool IsFallen()
     {
-        // Logika: Jika kemiringan (sudut X atau Z) lebih dari 45 derajat, dianggap jatuh
-        Vector3 rotation = transform.rotation.eulerAngles;
-        
-        // Normalisasi sudut agar terbaca -180 sampai 180
-        float tiltX = Mathf.Abs(transform.up.y); 
-        
-        // Jika sumbu Y (atas) tidak lagi menunjuk ke atas (kurang dari 0.7), berarti miring
-        return tiltX < 0.7f;
+        // CARA BARU (LEBIH AKURAT):
+        // Kita hitung sudut kemiringan antara "Atas Dunia" (Langit) dan "Atas Pin"
+        float angle = Vector3.Angle(Vector3.up, transform.up);
+
+        // Debugging: Cek di Console kalau ada pin yang aneh
+        if (angle > 20f)
+        {
+            Debug.Log(gameObject.name + " - Sudut miring: " + angle.ToString("F1") + "° (" + (angle > 45f ? "JATUH" : "MASIH BERDIRI") + ")");
+        }
+
+        // ATURAN DIPERBAIKI: 
+        // Jika kemiringan lebih dari 45 derajat -> Dianggap JATUH
+        // (Pin yang goyang sedikit masih dianggap berdiri)
+        if (angle > 45f)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     public void ResetPin()
     {
-        // Kembalikan ke posisi awal dan berdirikan
         Rigidbody rb = GetComponent<Rigidbody>();
+        
+        // Matikan velocity biar tidak meluncur pas direset
         rb.velocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
         
+        // Berdirikan lagi
         transform.position = startPosition;
         transform.rotation = startRotation;
         
-        // Aktifkan kembali (jika sempat dimatikan)
         gameObject.SetActive(true);
+    }
+
+    // Sembunyikan pin yang sudah jatuh (untuk lemparan ke-2)
+    public void HidePin()
+    {
+        gameObject.SetActive(false);
     }
 }
